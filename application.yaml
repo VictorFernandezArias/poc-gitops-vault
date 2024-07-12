@@ -1,0 +1,32 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vplugin-demo01
+  namespace: openshift-gitops
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/VictorFernandezArias/poc-gitops-vault.git'
+    path: resources
+    targetRevision: main
+    plugin:
+      name: argocd-vault-plugin
+      env:
+        - name: AVP_TYPE
+          value: vault
+        - name: VAULT_ADDR
+          value: 'http://vault.vault.svc.cluster.local:8200'
+        - name: AVP_AUTH_TYPE
+          value: token
+        - name: VAULT_TOKEN
+          value: root
+  destination:
+    namespace: vifernan04
+    server: 'https://kubernetes.default.svc'
+  syncPolicy:
+    automated:
+      selfHeal: true
+    syncOptions:
+      - Validate=false
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true
